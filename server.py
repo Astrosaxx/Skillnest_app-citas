@@ -1,5 +1,5 @@
-from app import create_app
-
+from base import create_app
+    
 app = create_app()
 
 # Punto de entrada de la aplicacion Flask

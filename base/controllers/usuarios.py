@@ -1,5 +1,5 @@
 from flask import render_template, redirect, request, session, Blueprint, flash
-from app.models.usuario_model import Usuario
+from base.models.usuario_model import Usuario
 from bcrypt import hashpw, gensalt
 
 

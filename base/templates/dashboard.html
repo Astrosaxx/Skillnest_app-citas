@@ -1,0 +1,577 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Citas Famosas{% endblock %}
+
+{% block head %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 15px;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        border-left: 4px solid #667eea;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .add-cita-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .cita-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border-left: 4px solid #28a745;
+        margin-bottom: 1.5rem;
+    }
+    
+    .cita-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .cita-text {
+        font-style: italic;
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .cita-author {
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .cita-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .btn-custom {
+        border-radius: 25px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-custom:hover {
+        transform: translateY(-2px);
+    }
+    
+    .search-box {
+        border-radius: 25px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-box:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .filter-buttons {
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-btn {
+        border-radius: 25px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .no-citas {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+    
+    .no-citas i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #dee2e6;
+    }
+    
+    /* Animaciones para las tarjetas */
+    .cita-card {
+        transition: all 0.3s ease, opacity 0.5s ease, transform 0.5s ease;
+    }
+    
+    /* Estilos para botones de favoritos */
+    .btn[disabled] {
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+    
+    /* Mejorar el estado de búsqueda */
+    .search-box:focus {
+        transform: scale(1.02);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Animación para el mensaje de no resultados */
+    #noResultsMessage {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Mejorar los botones de filtro */
+    .filter-btn.active {
+        background-color: #667eea;
+        color: white;
+        border-color: #667eea;
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+    
+    .filter-btn:hover:not(.active) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Estilos para las secciones */
+    .section-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        color: #343a40;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #e9ecef;
+    }
+    
+    /* Estilos para la tabla de favoritos */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .table thead th {
+        background: #343a40;
+        color: white;
+        border: none;
+        font-weight: 600;
+    }
+    
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+    }
+    
+    .cita-text-table {
+        font-style: italic;
+        color: #333;
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    
+    /* Animaciones para mover elementos */
+    .fade-out {
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.3s ease;
+    }
+    
+    .fade-in {
+        opacity: 1;
+        transform: translateX(0);
+        transition: all 0.3s ease;
+    }
+    
+    /* Contador de estadísticas */
+    .stats-counter {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header del Dashboard -->
+<div class="dashboard-header text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">¡Hola, {{ usuario.nombre|capitalize }} {{ usuario.apellido|capitalize }}!</h1>
+        <p class="lead">Bienvenido a tu panel de citas famosas</p>
+    </div>
+</div>
+
+<!-- Estadísticas del Usuario -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-center">
+            <i class="fas fa-quote-left fa-2x text-primary mb-3"></i>
+            <h3 class="text-primary">{{ citas_propias_totales }}</h3>
+            <p class="mb-0">Mis Citas</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-center">
+            <i class="fas fa-heart fa-2x text-danger mb-3"></i>
+            <h3 class="text-danger">{{ favoritos_totales }}</h3>
+            <p class="mb-0">Mis Favoritos</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card text-center">
+            <i class="fas fa-users fa-2x text-success mb-3"></i>
+            <h3 class="text-success">{{ citas_totales }}</h3>
+            <p class="mb-0">Total Citas</p>
+        </div>
+    </div>
+</div>
+
+<!-- Sección: Todas las Citas -->
+<div class="section-card mb-4">
+    <h3 class="section-title">
+        <i class="fas fa-list text-primary"></i> Todas las Citas
+        <small class="text-muted">({{ citas_no_favoritas|length }} disponibles)</small>
+    </h3>
+    
+    {% if citas_no_favoritas %}
+        <div class="row" id="citasNoFavoritas">
+            {% for cita in citas_no_favoritas %}
+            <div class="col-md-6 mb-3">
+                <div class="cita-card" data-cita-id="{{ cita.id }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <blockquote class="cita-text">
+                                "{{ cita.cita }}"
+                            </blockquote>
+                            <div class="cita-author">
+                                <i class="fas fa-user"></i> {{ cita.autor.split(' ')[0]|capitalize }} {{ cita.autor.split(' ')[1]|capitalize }}
+                            </div>
+                            <div class="cita-date">
+                                <i class="fas fa-calendar"></i> {{ cita.creado_en | format_date }}
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="btn-group-vertical" role="group">
+                                <a href="/citas/agregar_favorito/{{ cita.id }}" class="btn btn-outline-primary btn-sm btn-custom mb-2" 
+                                   onclick="moveToFavorites({{ cita.id }})">
+                                    <i class="fas fa-heart"></i> Favorito
+                                </a>
+                                {% if cita.autor_id == session['usuario_id'] %}
+                                <a href="/citas/editar/{{ cita.id }}" class="btn btn-outline-warning btn-sm btn-custom mb-2">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <a href="/citas/borrar/{{ cita.id }}" class="btn btn-outline-danger btn-sm btn-custom"
+                                   onclick="return confirm('¿Estás seguro de que quieres borrar esta cita?')">
+                                    <i class="fas fa-trash"></i> Borrar
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-citas">
+            <i class="fas fa-quote-left"></i>
+            <h4>No hay citas disponibles</h4>
+            <p>¡Todas las citas están en tus favoritos o no hay citas en la plataforma!</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Sección: Mis Favoritos -->
+<div class="section-card mb-4">
+    <h3 class="section-title">
+        <i class="fas fa-heart text-danger"></i> Mis Favoritos
+        <small class="text-muted">({{ citas_favoritas|length }} favoritos)</small>
+    </h3>
+    
+    {% if citas_favoritas %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cita</th>
+                        <th>Autor</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="favoritosTable">
+                    {% for cita in citas_favoritas %}
+                    <tr data-cita-id="{{ cita.id }}">
+                        <td>
+                            <blockquote class="cita-text-table">
+                                "{{ cita.cita }}"
+                            </blockquote>
+                        </td>
+                        <td>
+                            <i class="fas fa-user"></i> {{ cita.autor.split(' ')[0]|capitalize }} {{ cita.autor.split(' ')[1]|capitalize }}
+                        </td>
+                        <td>
+                            <i class="fas fa-calendar"></i> {{ cita.creado_en | format_date }}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="/citas/eliminar_favorito/{{ cita.id }}" class="btn btn-outline-danger btn-sm btn-custom"
+                                   onclick="removeFromFavorites({{ cita.id }})">
+                                    <i class="fas fa-heart-broken"></i> Quitar
+                                </a>
+                                {% if cita.autor_id == session['usuario_id'] %}
+                                <a href="/citas/editar/{{ cita.id }}" class="btn btn-outline-warning btn-sm btn-custom">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <a href="/citas/borrar/{{ cita.id }}" class="btn btn-outline-danger btn-sm btn-custom"
+                                   onclick="return confirm('¿Estás seguro de que quieres borrar esta cita?')">
+                                    <i class="fas fa-trash"></i> Borrar
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="no-citas">
+            <i class="fas fa-heart"></i>
+            <h4>No tienes favoritos aún</h4>
+            <p>¡Agrega citas a tus favoritos haciendo clic en el botón de corazón!</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Sección: Agregar Nueva Cita -->
+<div class="section-card">
+    <h3 class="section-title">
+        <i class="fas fa-plus-circle text-success"></i> Agregar Nueva Cita
+    </h3>
+    <form action="/citas/agregar" method="POST" id="formNuevaCita">
+        <div class="row">
+            <div class="col-md-10">
+                <div class="form-group">
+                    <textarea class="form-control" name="cita" rows="3" placeholder="Escribe tu cita inspiradora aquí..." required></textarea>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-success btn-custom w-100">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para mover cita a favoritos
+    window.moveToFavorites = function(citaId) {
+        const citaCard = document.querySelector(`[data-cita-id="${citaId}"]`);
+        if (citaCard) {
+            // Animar la salida
+            citaCard.classList.add('fade-out');
+            
+            setTimeout(() => {
+                // Crear nueva fila para la tabla de favoritos
+                const citaText = citaCard.querySelector('.cita-text').textContent;
+                const autor = citaCard.querySelector('.cita-author').textContent.trim();
+                const fecha = citaCard.querySelector('.cita-date').textContent.trim();
+                
+                // Obtener información del autor
+                const autorParts = autor.replace('👤 ', '').split(' ');
+                const nombreAutor = autorParts[0];
+                const apellidoAutor = autorParts[1];
+                
+                // Crear nueva fila en la tabla
+                const favoritosTable = document.getElementById('favoritosTable');
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('data-cita-id', citaId);
+                newRow.innerHTML = `
+                    <td>
+                        <blockquote class="cita-text-table">
+                            ${citaText}
+                        </blockquote>
+                    </td>
+                    <td>
+                        <i class="fas fa-user"></i> ${nombreAutor} ${apellidoAutor}
+                    </td>
+                    <td>
+                        <i class="fas fa-calendar"></i> ${fecha.replace('📅 ', '')}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/citas/eliminar_favorito/${citaId}" class="btn btn-outline-danger btn-sm btn-custom"
+                               onclick="removeFromFavorites(${citaId})">
+                                <i class="fas fa-heart-broken"></i> Quitar
+                            </a>
+                        </div>
+                    </td>
+                `;
+                
+                favoritosTable.appendChild(newRow);
+                
+                // Remover de la sección de citas disponibles
+                citaCard.parentElement.remove();
+                
+                // Actualizar contadores
+                updateCounters();
+                
+                // Mostrar mensaje de éxito
+                showNotification('¡Cita agregada a favoritos!', 'success');
+            }, 300);
+        }
+    };
+    
+    // Función para quitar cita de favoritos
+    window.removeFromFavorites = function(citaId) {
+        const tableRow = document.querySelector(`#favoritosTable tr[data-cita-id="${citaId}"]`);
+        if (tableRow) {
+            // Animar la salida
+            tableRow.classList.add('fade-out');
+            
+            setTimeout(() => {
+                // Obtener información de la fila
+                const citaText = tableRow.querySelector('.cita-text-table').textContent;
+                const autor = tableRow.querySelector('td:nth-child(2)').textContent.trim();
+                const fecha = tableRow.querySelector('td:nth-child(3)').textContent.trim();
+                
+                // Crear nueva tarjeta para la sección de citas
+                const citasContainer = document.getElementById('citasNoFavoritas');
+                const newCard = document.createElement('div');
+                newCard.className = 'col-md-6 mb-3';
+                newCard.innerHTML = `
+                    <div class="cita-card" data-cita-id="${citaId}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <blockquote class="cita-text">
+                                    ${citaText}
+                                </blockquote>
+                                <div class="cita-author">
+                                    <i class="fas fa-user"></i> ${autor.replace('👤 ', '')}
+                                </div>
+                                <div class="cita-date">
+                                    <i class="fas fa-calendar"></i> ${fecha.replace('📅 ', '')}
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="btn-group-vertical" role="group">
+                                    <a href="/citas/agregar_favorito/${citaId}" class="btn btn-outline-primary btn-sm btn-custom mb-2" 
+                                       onclick="moveToFavorites(${citaId})">
+                                        <i class="fas fa-heart"></i> Favorito
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                citasContainer.appendChild(newCard);
+                
+                // Remover de la tabla de favoritos
+                tableRow.remove();
+                
+                // Actualizar contadores
+                updateCounters();
+                
+                // Mostrar mensaje de éxito
+                showNotification('¡Cita quitada de favoritos!', 'info');
+            }, 300);
+        }
+    };
+    
+    // Función para actualizar contadores
+    function updateCounters() {
+        const citasDisponibles = document.querySelectorAll('#citasNoFavoritas .cita-card').length;
+        const favoritosTotales = document.querySelectorAll('#favoritosTable tr').length;
+        
+        // Actualizar texto en los títulos de sección
+        const tituloCitas = document.querySelector('.section-title');
+        if (tituloCitas) {
+            tituloCitas.innerHTML = `<i class="fas fa-list text-primary"></i> Todas las Citas <small class="text-muted">(${citasDisponibles} disponibles)</small>`;
+        }
+        
+        const tituloFavoritos = document.querySelectorAll('.section-title')[1];
+        if (tituloFavoritos) {
+            tituloFavoritos.innerHTML = `<i class="fas fa-heart text-danger"></i> Mis Favoritos <small class="text-muted">(${favoritosTotales} favoritos)</small>`;
+        }
+        
+        // Actualizar estadísticas
+        const statsFavoritos = document.querySelector('.stats-card:nth-child(2) h3');
+        if (statsFavoritos) {
+            statsFavoritos.textContent = favoritosTotales;
+        }
+    }
+    
+    // Función para mostrar notificaciones
+    function showNotification(message, type) {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remover después de 3 segundos
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+    
+    // Animación para el formulario de nueva cita
+    document.getElementById('formNuevaCita').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
+        submitBtn.disabled = true;
+    });
+    
+    // Inicializar contadores
+    updateCounters();
+});
+</script>
+{% endblock %}
