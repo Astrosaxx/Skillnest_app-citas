@@ -1,0 +1,12 @@
+# Adaptar datos y cambiar el nombre del archivo a .evn 
+
+# Datos de la base de datos en MySQL
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=admin4B
+MYSQL_DB=test_proyecto_curd
+
+# Datos para flask
+SECRET_KEY=n4jrUBrShSLPV_6ClB5tqQ
+FLASK_ENV=development

@@ -1,0 +1,34 @@
+# Entorno virtuales comunes
+
+venv/
+.venv/
+.env/
+env/
+env-todo
+
+# Archivos de python
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos comunes de data bases
+
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.db-journal
+*.db-trace
+*.db-trace.json
+*.db-trace.json.gz
+*.db-trace.json.gz.part
+
+# Archivos de sistema y editor
+
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
